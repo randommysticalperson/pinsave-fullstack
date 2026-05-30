@@ -4,35 +4,42 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { NearProvider } from "./contexts/NearContext";
+import { NavBar } from "./components/NavBar";
 import Home from "./pages/Home";
+import Upload from "./pages/Upload";
+import Saved from "./pages/Saved";
+import PinDetail from "./pages/PinDetail";
+import Settings from "./pages/Settings";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
+      <Route path="/" component={Home} />
+      <Route path="/upload" component={Upload} />
+      <Route path="/saved" component={Saved} />
+      <Route path="/pin/:tokenId" component={PinDetail} />
+      <Route path="/settings" component={Settings} />
+      <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
-
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
+      <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
-          <Toaster />
-          <Router />
+          <NearProvider>
+            <div className="min-h-screen flex flex-col bg-background text-foreground">
+              <NavBar />
+              <main className="flex-1">
+                <Router />
+              </main>
+            </div>
+            <Toaster richColors position="bottom-right" />
+          </NearProvider>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

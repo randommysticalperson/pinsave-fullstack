@@ -154,11 +154,30 @@ const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(
 
 export default defineConfig({
   plugins,
+  define: {
+    // Some NEAR packages expect global to exist in browser
+    global: "globalThis",
+  },
+  optimizeDeps: {
+    include: [
+      "@near-wallet-selector/core",
+      "@near-wallet-selector/modal-ui",
+      "@near-wallet-selector/my-near-wallet",
+      "@near-js/accounts",
+      "@near-js/transactions",
+      "@near-js/providers",
+      "@near-js/crypto",
+      "@near-js/utils",
+      "@near-js/keystores-browser",
+    ],
+  },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+      // Node built-in polyfills for browser
+      buffer: "buffer",
     },
   },
   envDir: path.resolve(import.meta.dirname),

@@ -25,4 +25,12 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+// App configuration table — stores runtime settings like NEAR contract and NFT.Storage API key
+export const appConfig = mysqlTable("app_config", {
+  key: varchar("key", { length: 128 }).primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AppConfig = typeof appConfig.$inferSelect;
+export type InsertAppConfig = typeof appConfig.$inferInsert;

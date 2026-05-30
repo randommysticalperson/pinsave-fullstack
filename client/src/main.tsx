@@ -1,3 +1,10 @@
+// Polyfill Buffer for NEAR packages
+import { Buffer } from "buffer";
+if (typeof window !== "undefined") {
+  (window as unknown as Record<string, unknown>).Buffer = Buffer;
+  (window as unknown as Record<string, unknown>).global = window;
+}
+
 import { trpc } from "@/lib/trpc";
 import { UNAUTHED_ERR_MSG } from '@shared/const';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
