@@ -1,15 +1,24 @@
 import { useState, useCallback } from "react";
 
-const LS_KEY = "pinsave_nft_storage_key";
+const LS_KEY = "pinsave_ipfs_storage_key";
 
 /**
- * Stores the user's personal NFT.Storage API key in localStorage.
+ * Stores the user's personal Pinata JWT in localStorage.
  * The key is NEVER sent to the server passively — it is only included
- * as a request header when the user explicitly triggers an upload.
+ * as the X-IPFS-Storage-Key request header when the user triggers an upload.
+ *
+ * Get a free Pinata JWT at https://app.pinata.cloud/developers/api-keys
  */
 export function useNftStorageKey() {
   const [key, setKeyState] = useState<string>(() => {
     try {
+      // Migrate old key name if present
+      const legacy = localStorage.getItem("pinsave_nft_storage_key");
+      if (legacy) {
+        localStorage.setItem(LS_KEY, legacy);
+        localStorage.removeItem("pinsave_nft_storage_key");
+        return legacy;
+      }
       return localStorage.getItem(LS_KEY) ?? "";
     } catch {
       return "";
@@ -40,7 +49,7 @@ export function useNftStorageKey() {
   }, []);
 
   return {
-    /** The stored key, or empty string if not set */
+    /** The stored Pinata JWT, or empty string if not set */
     key,
     /** Whether a key has been saved */
     hasKey: key.length > 0,

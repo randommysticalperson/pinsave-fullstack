@@ -116,7 +116,7 @@ export default function Upload() {
       const headers: Record<string, string> = {};
       if (activeKey) {
         // Pass the user's personal key as a header — never stored server-side
-        headers["X-NFT-Storage-Key"] = activeKey;
+        headers["X-IPFS-Storage-Key"] = activeKey;
       }
 
       const uploadRes = await fetch("/api/upload", {
@@ -245,12 +245,12 @@ export default function Upload() {
           </p>
         </div>
 
-        {/* ── NFT.Storage API Key card ── */}
+        {/* ── Pinata JWT card ── */}
         <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
           <div className="flex items-center gap-2">
             <KeyRoundIcon className="h-4 w-4 text-primary" />
             <span className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">
-              NFT.Storage API Key
+              Pinata JWT
             </span>
             {keySaved && (
               <span className="ml-auto flex items-center gap-1 text-xs text-emerald-400 font-medium">
@@ -261,16 +261,16 @@ export default function Upload() {
           </div>
 
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Your key is stored <strong>only in your browser</strong> (localStorage) and sent
-            directly to the upload endpoint on each request. It is never persisted on the server.
-            Get a free key at{" "}
+            Your Pinata JWT is stored <strong>only in your browser</strong> (localStorage) and
+            forwarded to the upload endpoint on each request. It is never persisted on the server.
+            Get a free JWT at{" "}
             <a
-              href="https://nft.storage"
+              href="https://app.pinata.cloud/developers/api-keys"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary underline underline-offset-2"
             >
-              nft.storage
+              app.pinata.cloud
             </a>
             .
           </p>
@@ -279,7 +279,7 @@ export default function Upload() {
             <div className="relative flex-1">
               <Input
                 type={showKey ? "text" : "password"}
-                placeholder="Paste your nft.storage API key…"
+                placeholder="Paste your Pinata JWT…"
                 value={keyInput}
                 onChange={(e) => {
                   setKeyInput(e.target.value);

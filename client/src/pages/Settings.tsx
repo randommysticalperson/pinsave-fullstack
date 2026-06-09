@@ -78,7 +78,7 @@ export default function Settings() {
           <div>
             <h1 className="text-2xl font-display font-semibold">Settings</h1>
             <p className="text-muted-foreground text-sm">
-              Configure your NEAR contract and NFT.Storage integration.
+              Configure your NEAR contract and Pinata IPFS integration.
             </p>
           </div>
         </div>
@@ -88,7 +88,7 @@ export default function Settings() {
           <div className="rounded-xl bg-secondary/40 border border-border/50 p-4 mb-8 flex flex-wrap gap-4">
             <div className="flex items-center gap-2 text-sm">
               <div className={`h-2 w-2 rounded-full ${settings.nftStorageApiKeySet ? "bg-primary" : "bg-muted-foreground"}`} />
-              <span className="text-muted-foreground">NFT.Storage:</span>
+              <span className="text-muted-foreground">Pinata JWT:</span>
               <span className={settings.nftStorageApiKeySet ? "text-primary font-medium" : "text-muted-foreground"}>
                 {settings.nftStorageApiKeySet
                   ? settings.nftStorageApiKeyMasked
@@ -125,31 +125,32 @@ export default function Settings() {
 
         {/* Settings form */}
         <div className="rounded-2xl border border-border bg-card overflow-hidden">
-          {/* NFT.Storage section */}
+          {/* Pinata section */}
           <div className="p-6">
             <div className="flex items-center gap-2 mb-1">
               <KeyIcon className="h-4 w-4 text-primary" />
               <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                NFT.Storage
+                Pinata IPFS
               </h2>
             </div>
             <p className="text-xs text-muted-foreground mb-5">
-              Your API key is stored securely on the server and never exposed to the browser.
-              Get one at{" "}
+              The site-wide Pinata JWT is stored securely on the server and never exposed to the
+              browser. Individual users can also supply their own JWT on the Upload page.
+              Get a free JWT at{" "}
               <a
-                href="https://nft.storage"
+                href="https://app.pinata.cloud/developers/api-keys"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
-                nft.storage
+                app.pinata.cloud
               </a>
               .
             </p>
 
             <div>
               <Label htmlFor="apiKey" className="text-sm font-medium mb-2 block">
-                API Key
+                Pinata JWT
               </Label>
               <div className="relative">
                 <Input
@@ -157,8 +158,8 @@ export default function Settings() {
                   type={showApiKey ? "text" : "password"}
                   placeholder={
                     settings?.nftStorageApiKeySet
-                      ? "Enter new key to update…"
-                      : "Paste your nft.storage API key…"
+                      ? "Enter new JWT to update…"
+                      : "Paste your Pinata JWT…"
                   }
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}

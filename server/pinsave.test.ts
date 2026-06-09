@@ -187,7 +187,7 @@ describe("nearConfig endpoint", () => {
 // ---------------------------------------------------------------------------
 
 describe("upload proxy key resolution", () => {
-  it("prefers X-NFT-Storage-Key header over the global DB key", async () => {
+  it("prefers X-IPFS-Storage-Key header over the global DB key", async () => {
     // Simulate what the server does: pick perRequestKey if present
     const pickKey = (
       headerValue: string | string[] | undefined,
