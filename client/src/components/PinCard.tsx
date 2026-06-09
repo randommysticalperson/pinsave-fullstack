@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 import { ExternalLinkIcon, UserIcon } from "lucide-react";
 import type { NftToken } from "../../../server/near";
 import { useNear } from "@/contexts/NearContext";
@@ -35,10 +35,17 @@ export function PinCard({ token }: PinCardProps) {
       ? owner_id.slice(0, 8) + "…" + owner_id.slice(-5)
       : owner_id;
 
+  const [, navigate] = useLocation();
+
   return (
     <div className="masonry-item">
-      <Link href={`/pin/${token_id}`}>
-        <div className="pin-card group">
+      <div
+        className="pin-card group cursor-pointer"
+        role="link"
+        tabIndex={0}
+        onClick={() => navigate(`/pin/${token_id}`)}
+        onKeyDown={(e) => e.key === "Enter" && navigate(`/pin/${token_id}`)}
+      >
           {/* Image */}
           {!imgLoaded && !imgError && (
             <div className="skeleton w-full" style={{ paddingBottom: "120%" }} />
@@ -89,7 +96,6 @@ export function PinCard({ token }: PinCardProps) {
             </div>
           </div>
         </div>
-      </Link>
     </div>
   );
 }
