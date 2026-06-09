@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useNear } from "@/contexts/NearContext";
+import { useNftStorageKey } from "@/hooks/useNftStorageKey";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,12 +15,18 @@ import {
   WalletIcon,
   CheckCircle2Icon,
   ArrowRightIcon,
+  KeyRoundIcon,
+  EyeIcon,
+  EyeOffIcon,
+  CheckIcon,
+  Trash2Icon,
 } from "lucide-react";
 
 type UploadStep = "idle" | "uploading-ipfs" | "minting" | "done";
 
 export default function Upload() {
   const { isConnected, accountId, connect, callMethod } = useNear();
+  const { key: storedKey, hasKey, saveKey, clearKey } = useNftStorageKey();
   const [, navigate] = useLocation();
 
   const [file, setFile] = useState<File | null>(null);
@@ -30,6 +37,28 @@ export default function Upload() {
   const [isDragging, setIsDragging] = useState(false);
   const [mintedTokenId, setMintedTokenId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // NFT.Storage key input state
+  const [keyInput, setKeyInput] = useState(storedKey);
+  const [showKey, setShowKey] = useState(false);
+  const [keySaved, setKeySaved] = useState(hasKey);
+
+  const handleSaveKey = () => {
+    if (!keyInput.trim()) {
+      toast.error("Please enter an API key.");
+      return;
+    }
+    saveKey(keyInput.trim());
+    setKeySaved(true);
+    toast.success("API key saved locally in your browser.");
+  };
+
+  const handleClearKey = () => {
+    clearKey();
+    setKeyInput("");
+    setKeySaved(false);
+    toast("API key removed from your browser.");
+  };
 
   const handleFile = useCallback((f: File) => {
     if (!f.type.startsWith("image/")) {
@@ -75,14 +104,24 @@ export default function Upload() {
       return;
     }
 
+    // Determine which key to use: local key takes priority
+    const activeKey = storedKey || "";
+
     try {
       // Step 1: Upload to IPFS via server-side proxy
       setStep("uploading-ipfs");
       const formData = new FormData();
       formData.append("file", file);
 
+      const headers: Record<string, string> = {};
+      if (activeKey) {
+        // Pass the user's personal key as a header — never stored server-side
+        headers["X-NFT-Storage-Key"] = activeKey;
+      }
+
       const uploadRes = await fetch("/api/upload", {
         method: "POST",
+        headers,
         body: formData,
       });
 
@@ -99,7 +138,6 @@ export default function Upload() {
       // Step 2: Mint NFT on NEAR contract
       setStep("minting");
 
-      // Generate a unique token ID
       const tokenId = `pin-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
       await callMethod("nft_mint", {
@@ -198,14 +236,106 @@ export default function Upload() {
 
   return (
     <div className="container py-10">
-      <div className="max-w-2xl mx-auto fade-in">
-        <div className="mb-8">
+      <div className="max-w-2xl mx-auto fade-in space-y-8">
+        {/* Page header */}
+        <div>
           <h1 className="text-3xl font-display font-semibold mb-2">Create a Pin</h1>
           <p className="text-muted-foreground">
             Upload an image to IPFS and mint it as an NFT on the NEAR blockchain.
           </p>
         </div>
 
+        {/* ── NFT.Storage API Key card ── */}
+        <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <KeyRoundIcon className="h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">
+              NFT.Storage API Key
+            </span>
+            {keySaved && (
+              <span className="ml-auto flex items-center gap-1 text-xs text-emerald-400 font-medium">
+                <CheckIcon className="h-3 w-3" />
+                Saved locally
+              </span>
+            )}
+          </div>
+
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Your key is stored <strong>only in your browser</strong> (localStorage) and sent
+            directly to the upload endpoint on each request. It is never persisted on the server.
+            Get a free key at{" "}
+            <a
+              href="https://nft.storage"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline underline-offset-2"
+            >
+              nft.storage
+            </a>
+            .
+          </p>
+
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Input
+                type={showKey ? "text" : "password"}
+                placeholder="Paste your nft.storage API key…"
+                value={keyInput}
+                onChange={(e) => {
+                  setKeyInput(e.target.value);
+                  setKeySaved(false);
+                }}
+                disabled={isProcessing}
+                className="bg-input border-border pr-10 font-mono text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowKey((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                tabIndex={-1}
+              >
+                {showKey ? (
+                  <EyeOffIcon className="h-4 w-4" />
+                ) : (
+                  <EyeIcon className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSaveKey}
+              disabled={isProcessing || !keyInput.trim()}
+              className="shrink-0 gap-1.5"
+            >
+              <CheckIcon className="h-3.5 w-3.5" />
+              Save
+            </Button>
+
+            {hasKey && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearKey}
+                disabled={isProcessing}
+                className="shrink-0 text-destructive hover:text-destructive gap-1.5"
+              >
+                <Trash2Icon className="h-3.5 w-3.5" />
+                Clear
+              </Button>
+            )}
+          </div>
+
+          {!hasKey && !keyInput && (
+            <p className="text-xs text-amber-400/80">
+              ⚠ No key set. Uploads will use the site-wide key if one is configured in Settings,
+              otherwise they will fail.
+            </p>
+          )}
+        </div>
+
+        {/* ── Image + metadata form ── */}
         <div className="grid md:grid-cols-2 gap-8">
           {/* Left: Image upload */}
           <div>

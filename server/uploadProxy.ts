@@ -20,12 +20,17 @@ export function registerUploadProxy(app: Express): void {
     upload.single("file"),
     async (req: Request, res: Response) => {
       try {
-        // Read API key from DB (falls back to process.env)
-        const apiKey = await getConfigValue(CONFIG_KEYS.NFT_STORAGE_API_KEY);
+        // Prefer the per-request user-supplied key (X-NFT-Storage-Key header),
+        // falling back to the global DB / env key.
+        const perRequestKey = typeof req.headers["x-nft-storage-key"] === "string"
+          ? req.headers["x-nft-storage-key"].trim()
+          : "";
+        const globalKey = await getConfigValue(CONFIG_KEYS.NFT_STORAGE_API_KEY);
+        const apiKey = perRequestKey || globalKey;
 
         if (!apiKey) {
           res.status(503).json({
-            error: "NFT.Storage API key is not configured. Please visit Settings to add it.",
+            error: "NFT.Storage API key is not configured. Please add your key on the Upload page or visit Settings.",
           });
           return;
         }

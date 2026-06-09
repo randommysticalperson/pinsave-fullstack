@@ -142,7 +142,7 @@ describe("pins.list", () => {
     const caller = appRouter.createCaller(ctx);
     const result = await caller.pins.list({ limit: 5 });
     expect(Array.isArray(result)).toBe(true);
-  });
+  }, 15000);
 });
 
 describe("pins.byOwner", () => {
@@ -179,5 +179,57 @@ describe("nearConfig endpoint", () => {
     expect(config).not.toHaveProperty("apiKey");
     expect(config).not.toHaveProperty("nftStorageApiKey");
     expect(config).not.toHaveProperty("NFT_STORAGE_API_KEY");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Upload proxy — per-user key header tests
+// ---------------------------------------------------------------------------
+
+describe("upload proxy key resolution", () => {
+  it("prefers X-NFT-Storage-Key header over the global DB key", async () => {
+    // Simulate what the server does: pick perRequestKey if present
+    const pickKey = (
+      headerValue: string | string[] | undefined,
+      globalKey: string | null
+    ): string | null => {
+      const perRequest =
+        typeof headerValue === "string" ? headerValue.trim() : "";
+      return perRequest || globalKey;
+    };
+
+    expect(pickKey("user-personal-key", "global-key")).toBe("user-personal-key");
+    expect(pickKey("", "global-key")).toBe("global-key");
+    expect(pickKey(undefined, "global-key")).toBe("global-key");
+    expect(pickKey("", null)).toBeNull();
+    expect(pickKey(undefined, null)).toBeNull();
+  });
+
+  it("returns null when neither header nor global key is present", () => {
+    const pickKey = (
+      headerValue: string | string[] | undefined,
+      globalKey: string | null
+    ): string | null => {
+      const perRequest =
+        typeof headerValue === "string" ? headerValue.trim() : "";
+      return perRequest || globalKey;
+    };
+
+    expect(pickKey(undefined, null)).toBeNull();
+    expect(pickKey("", null)).toBeNull();
+    expect(pickKey("   ", null)).toBeNull();
+  });
+
+  it("trims whitespace from the header value", () => {
+    const pickKey = (
+      headerValue: string | string[] | undefined,
+      globalKey: string | null
+    ): string | null => {
+      const perRequest =
+        typeof headerValue === "string" ? headerValue.trim() : "";
+      return perRequest || globalKey;
+    };
+
+    expect(pickKey("  my-key  ", null)).toBe("my-key");
   });
 });

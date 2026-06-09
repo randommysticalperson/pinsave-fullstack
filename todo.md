@@ -45,3 +45,10 @@
 - [x] Settings page UI: form with NFT.Storage API key input (masked), contract name, network selector
 - [x] Server reads config from DB at runtime, falling back to process.env defaults
 - [x] Show success/error toast on save
+
+## Per-User NFT.Storage Key (Local Input)
+- [x] Create useNftStorageKey hook — reads/writes key in localStorage, never sent to server passively
+- [x] Add "Your API Key" input card on Upload page with input, save, and clear buttons
+- [x] Pass user key as X-NFT-Storage-Key header on upload requests
+- [x] Server upload proxy: prefer X-NFT-Storage-Key header over global DB key
+- [x] Show key status badge (key set / not set) on Upload page
