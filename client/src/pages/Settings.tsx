@@ -23,6 +23,7 @@ import {
   Loader2Icon,
   ShieldCheckIcon,
   LockIcon,
+  AlertTriangleIcon,
 } from "lucide-react";
 
 export default function Settings() {
@@ -133,6 +134,28 @@ export default function Settings() {
                 Pinata IPFS
               </h2>
             </div>
+            {/* NFT.Storage Classic deprecation notice */}
+            <div className="flex gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3.5 mb-5">
+              <AlertTriangleIcon className="h-4 w-4 text-amber-400 mt-0.5 shrink-0" />
+              <div className="text-xs text-amber-300/90 leading-relaxed space-y-1">
+                <p className="font-semibold text-amber-300">
+                  NFT.Storage Classic was permanently shut down on June 30, 2024.
+                </p>
+                <p>
+                  Any existing NFT.Storage API keys are no longer valid. This app now uses{" "}
+                  <a
+                    href="https://pinata.cloud"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2 hover:text-amber-200 transition-colors"
+                  >
+                    Pinata
+                  </a>{" "}
+                  as its IPFS storage provider. Please generate a new Pinata JWT below.
+                </p>
+              </div>
+            </div>
+
             <p className="text-xs text-muted-foreground mb-5">
               The site-wide Pinata JWT is stored securely on the server and never exposed to the
               browser. Individual users can also supply their own JWT on the Upload page.
