@@ -163,27 +163,6 @@ export default function Upload() {
     }
   };
 
-  // --- Not connected state ---
-  if (!isConnected) {
-    return (
-      <div className="container py-16">
-        <div className="max-w-md mx-auto text-center fade-in">
-          <div className="h-20 w-20 rounded-3xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
-            <WalletIcon className="h-10 w-10 text-primary" />
-          </div>
-          <h1 className="text-2xl font-display font-semibold mb-3">Connect your wallet</h1>
-          <p className="text-muted-foreground mb-8">
-            You need to connect your NEAR wallet to mint pins as NFTs on the blockchain.
-          </p>
-          <Button onClick={connect} className="btn-glow gap-2 rounded-full" size="lg">
-            <WalletIcon className="h-5 w-5" />
-            Connect NEAR Wallet
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   // --- Success state ---
   if (step === "done" && mintedTokenId) {
     return (
@@ -335,7 +314,24 @@ export default function Upload() {
           )}
         </div>
 
-        {/* ── Image + metadata form ── */}
+        {/* ── Wallet gate: connect prompt or upload form ── */}
+        {!isConnected ? (
+          <div className="rounded-2xl border border-border bg-card p-8 text-center space-y-5">
+            <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
+              <WalletIcon className="h-8 w-8 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-display font-semibold mb-2">Connect your wallet to mint</h2>
+              <p className="text-sm text-muted-foreground">
+                You need to connect your NEAR wallet to upload images and mint pins as NFTs.
+              </p>
+            </div>
+            <Button onClick={connect} className="btn-glow gap-2 rounded-full" size="lg">
+              <WalletIcon className="h-5 w-5" />
+              Connect NEAR Wallet
+            </Button>
+          </div>
+        ) : (
         <div className="grid md:grid-cols-2 gap-8">
           {/* Left: Image upload */}
           <div>
@@ -459,6 +455,7 @@ export default function Upload() {
             )}
           </div>
         </div>
+        )}
       </div>
     </div>
   );
