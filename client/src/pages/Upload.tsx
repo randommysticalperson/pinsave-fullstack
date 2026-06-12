@@ -142,14 +142,15 @@ export default function Upload() {
 
       await callMethod("nft_mint", {
         token_id: tokenId,
-        receiver_id: accountId,
-        token_metadata: {
+        metadata: {
           title: title.trim(),
           description: description.trim() || null,
           media: mediaUrl,
           extra: JSON.stringify({ cid }),
           copies: 1,
+          issued_at: Date.now(),
         },
+        receiver_id: accountId,
       });
 
       setMintedTokenId(tokenId);
